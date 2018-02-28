@@ -17,7 +17,6 @@
 package org.springframework.beans;
 
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -156,7 +155,7 @@ public abstract class PropertyMatches {
 		if (s2.isEmpty()) {
 			return s1.length();
 		}
-		int d[][] = new int[s1.length() + 1][s2.length() + 1];
+		int[][] d = new int[s1.length() + 1][s2.length() + 1];
 
 		for (int i = 0; i <= s1.length(); i++) {
 			d[i][0] = i;
@@ -245,13 +244,10 @@ public abstract class PropertyMatches {
 
 		private static String[] calculateMatches(final String propertyName, Class<?> beanClass, final int maxDistance) {
 			final List<String> candidates = new ArrayList<>();
-			ReflectionUtils.doWithFields(beanClass, new ReflectionUtils.FieldCallback() {
-				@Override
-				public void doWith(Field field) throws IllegalArgumentException, IllegalAccessException {
-					String possibleAlternative = field.getName();
-					if (calculateStringDistance(propertyName, possibleAlternative) <= maxDistance) {
-						candidates.add(possibleAlternative);
-					}
+			ReflectionUtils.doWithFields(beanClass, field -> {
+				String possibleAlternative = field.getName();
+				if (calculateStringDistance(propertyName, possibleAlternative) <= maxDistance) {
+					candidates.add(possibleAlternative);
 				}
 			});
 			Collections.sort(candidates);
